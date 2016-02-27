@@ -15,5 +15,5 @@ set_property(TARGET ${MAIN_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
 install(TARGETS ${MAIN_TARGET}
     ARCHIVE DESTINATION lib)
 
-install(FILES source/*.hpp
+install(FILES source/parser.hpp
     DESTINATION include/command_line)
