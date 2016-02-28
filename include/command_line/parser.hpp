@@ -67,7 +67,7 @@ public:
     template <typename T>
     std::shared_ptr<option<T> const> mandatory(char short_name, std::string long_name, std::string description)
     {
-        return create_option(requirement::mandatory, short_name, long_name, description);
+        return create_option<T>(requirement::mandatory, short_name, long_name, description);
     }
 
     /** Add an optional parameter.
@@ -75,7 +75,7 @@ public:
     template <typename T>
     std::shared_ptr<option<T> const> optional(char short_name, std::string long_name, std::string description)
     {
-        return create_option(requirement::optional, short_name, long_name, description);
+        return create_option<T>(requirement::optional, short_name, long_name, description);
     }
 
     void run(int argn, char* argv[]);
