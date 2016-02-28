@@ -1,11 +1,12 @@
 #include "parser.hpp"
+#include <algorithm>
 
 namespace {
 
 std::string spaces(std::size_t n)
 {
     std::string result;
-    for (int i=0; i<n; ++i)
+    for (std::size_t i=0; i<n; ++i)
         result += ' ';
     return result;
 }
@@ -51,7 +52,7 @@ std::unordered_set<command_line_parser::option_handle> command_line_parser::requ
     return result;
 }
 
-bool command_line_parser::run(int argn, char *argv[])
+void command_line_parser::run(int argn, char *argv[])
 {
     std::shared_ptr<abstract_option> current;
     auto required = required_options();
@@ -115,7 +116,7 @@ command_line_parser::option_handle command_line_parser::find_short(char short_na
     return m_short_name_lookup.at(short_name);
 }
 
-command_line_parser::option_handle command_line_parser::find_long(const std::__cxx11::string &long_name)
+command_line_parser::option_handle command_line_parser::find_long(const std::string &long_name)
 {
     return m_long_name_lookup.at(long_name);
 }

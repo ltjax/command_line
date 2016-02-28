@@ -71,7 +71,7 @@ public:
         return result;
     }
 
-    bool run(int argn, char* argv[]);
+    void run(int argn, char* argv[]);
 
     void print_help(std::ostream& out) const;
 
