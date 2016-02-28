@@ -63,43 +63,50 @@ void command_line_parser::run(int argn, char *argv[])
         if (parameter.empty())
             continue;
 
-        if (parameter.front() == '-')
-        {
-            if (parameter.size() < 2)
-                throw std::runtime_error("Parameter introducer, but no parameter given");
-
-            if (parameter[1] == '-')
-            {
-                current = find_long(parameter.substr(2));
-            }
-            else
-            {
-                current = find_short(parameter[1]);
-
-                // no space between option and value, apply directly
-                if (parameter.size() > 2)
-                {
-                    current->apply(parameter.substr(2));
-                    required.erase(current);
-                    current=nullptr;
-                }
-            }
-        }
-        else if (current != nullptr)
-        {
-            current->apply(parameter);
-            required.erase(current);
-        }
-        else
-        {
-            throw std::runtime_error("Unrecognized parameter: " + parameter);
-        }
+        current=process(current, parameter, required);
     }
 
     if (!required.empty())
     {
         throw std::runtime_error("One or more required options were not set");
     }
+}
+
+std::shared_ptr<command_line_parser::abstract_option> command_line_parser::process(std::shared_ptr<abstract_option> current, std::string const& parameter, std::unordered_set<option_handle>& required)
+{
+    if (parameter.front()=='-')
+    {
+        if (parameter.size()<2)
+            throw std::runtime_error("Parameter introducer, but no parameter given");
+
+        if (parameter[1]=='-')
+        {
+            current=find_long(parameter.substr(2));
+        }
+        else
+        {
+            current=find_short(parameter[1]);
+
+            // no space between option and value, apply directly
+            if (parameter.size()>2)
+            {
+                current->apply(parameter.substr(2));
+                required.erase(current);
+                current=nullptr;
+            }
+        }
+    }
+    else if (current!=nullptr)
+    {
+        current->apply(parameter);
+        required.erase(current);
+    }
+    else
+    {
+        throw std::runtime_error("Unrecognized parameter: "+parameter);
+    }
+
+    return current;
 }
 
 void command_line_parser::register_option(command_line_parser::option_handle option,

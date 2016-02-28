@@ -73,6 +73,9 @@ public:
 
     void run(int argn, char* argv[]);
 
+    std::shared_ptr<abstract_option> process(std::shared_ptr<abstract_option> current, std::string const&parameter,
+                                             std::unordered_set<command_line_parser::option_handle> &required);
+
     void print_help(std::ostream& out) const;
 
 private:
