@@ -1,6 +1,8 @@
 #include "command_line/parser.hpp"
 #include <algorithm>
 
+using namespace command_line;
+
 namespace {
 
 std::string spaces(std::size_t n)
@@ -14,7 +16,7 @@ std::string spaces(std::size_t n)
 }
 
 
-void command_line_parser::print_help(std::ostream& out) const
+void parser::print_help(std::ostream& out) const
 {
     std::size_t longest_long_name_length=0;
     for (auto&& description : m_description_list)
@@ -34,14 +36,14 @@ void command_line_parser::print_help(std::ostream& out) const
     }
 }
 
-command_line_parser::command_line_parser() = default;
-command_line_parser::~command_line_parser() = default;
+parser::parser() = default;
+parser::~parser() = default;
 
-command_line_parser::abstract_option::~abstract_option()=default;
+abstract_option::~abstract_option()=default;
 
-std::unordered_set<command_line_parser::option_handle> command_line_parser::required_options() const
+std::unordered_set<option_handle> parser::required_options() const
 {
-    std::unordered_set<command_line_parser::option_handle> result;
+    std::unordered_set<option_handle> result;
 
     for (auto&& description : m_description_list)
     {
@@ -52,7 +54,7 @@ std::unordered_set<command_line_parser::option_handle> command_line_parser::requ
     return result;
 }
 
-void command_line_parser::run(int argn, char *argv[])
+void parser::run(int argn, char *argv[])
 {
     std::shared_ptr<abstract_option> current;
     auto required = required_options();
@@ -72,7 +74,7 @@ void command_line_parser::run(int argn, char *argv[])
     }
 }
 
-std::shared_ptr<command_line_parser::abstract_option> command_line_parser::process(std::shared_ptr<abstract_option> current, std::string const& parameter, std::unordered_set<option_handle>& required)
+option_handle parser::process(option_handle current, std::string const& parameter, std::unordered_set<option_handle>& required)
 {
     if (parameter.front()=='-')
     {
@@ -109,21 +111,21 @@ std::shared_ptr<command_line_parser::abstract_option> command_line_parser::proce
     return current;
 }
 
-void command_line_parser::register_option(command_line_parser::option_handle option,
-                                          command_line_parser::type option_type,
-                                          char short_name, std::string long_name, std::string description)
+void parser::register_option(option_handle option,
+                             parser::type option_type,
+                             char short_name, std::string long_name, std::string description)
 {
     m_short_name_lookup[short_name] = option;
     m_long_name_lookup[long_name] = option;
     m_description_list.push_back({option_type, short_name, std::move(long_name), std::move(description), std::move(option)});
 }
 
-command_line_parser::option_handle command_line_parser::find_short(char short_name)
+option_handle parser::find_short(char short_name)
 {
     return m_short_name_lookup.at(short_name);
 }
 
-command_line_parser::option_handle command_line_parser::find_long(const std::string &long_name)
+option_handle parser::find_long(const std::string &long_name)
 {
     return m_long_name_lookup.at(long_name);
 }
