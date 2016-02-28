@@ -57,21 +57,25 @@ private:
 class parser
 {
 public:
-    enum class type
-    {
-        optional,
-        required
-    };
 
     parser();
     ~parser();
 
+    /** Add a mandatory parameter.
+        There will be an error in run() if a mandatory option was not specified.
+    */
     template <typename T>
-    std::shared_ptr<option<T> const> add(type option_type, char short_name, std::string long_name, std::string description)
+    std::shared_ptr<option<T> const> mandatory(char short_name, std::string long_name, std::string description)
     {
-        auto result = std::make_shared<option<T>>();
-        register_option(result, option_type, short_name, long_name, description);
-        return result;
+        return create_option(requirement::mandatory, short_name, long_name, description);
+    }
+
+    /** Add an optional parameter.
+    */
+    template <typename T>
+    std::shared_ptr<option<T> const> optional(char short_name, std::string long_name, std::string description)
+    {
+        return create_option(requirement::optional, short_name, long_name, description);
     }
 
     void run(int argn, char* argv[]);
@@ -79,7 +83,21 @@ public:
     void print_help(std::ostream& out) const;
 
 private:
-    void register_option(option_handle option, type option_type,
+    enum class requirement
+    {
+        optional,
+        mandatory
+    };
+
+    template <typename T>
+    std::shared_ptr<option<T> const> create_option(requirement option_type, char short_name, std::string long_name, std::string description)
+    {
+        auto result=std::make_shared<option<T>>();
+        register_option(result, option_type, short_name, long_name, description);
+        return result;
+    }
+
+    void register_option(option_handle option, requirement option_type,
                          char short_name, std::string long_name, std::string description);
 
     option_handle process(option_handle current, std::string const& parameter,
@@ -89,7 +107,7 @@ private:
 
     struct option_description
     {
-        type option_type;
+        requirement option_type;
         char short_name;
         std::string long_name;
         std::string description;

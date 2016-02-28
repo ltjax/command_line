@@ -29,7 +29,7 @@ void parser::print_help(std::ostream& out) const
         out << '-' << each.short_name << ", --" << each.long_name << spaces(padding);
         out << " : " << each.description;
 
-        if (each.option_type == type::required)
+        if (each.option_type == requirement::mandatory)
             out << " (REQUIRED)";
 
         out << std::endl;
@@ -47,7 +47,7 @@ std::unordered_set<option_handle> parser::required_options() const
 
     for (auto&& description : m_description_list)
     {
-        if (description.option_type == type::required)
+        if (description.option_type == requirement::mandatory)
             result.insert(description.option);
     }
 
@@ -112,7 +112,7 @@ option_handle parser::process(option_handle current, std::string const& paramete
 }
 
 void parser::register_option(option_handle option,
-                             parser::type option_type,
+                             requirement option_type,
                              char short_name, std::string long_name, std::string description)
 {
     m_short_name_lookup[short_name] = option;
