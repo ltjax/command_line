@@ -13,8 +13,11 @@ target_include_directories(${MAIN_TARGET}
 set_property(TARGET ${MAIN_TARGET} PROPERTY CXX_STANDARD 11)
 set_property(TARGET ${MAIN_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
 
-install(TARGETS ${MAIN_TARGET}
-    ARCHIVE DESTINATION lib)
+# Only add install directives if needed, i.e. as an installed library
+if (COMMAND_LINE_ENABLE_INSTALL)
+  install(TARGETS ${MAIN_TARGET}
+      ARCHIVE DESTINATION lib)
 
-install(FILES include/command_line/parser.hpp
-    DESTINATION include/command_line)
+  install(FILES include/command_line/parser.hpp
+      DESTINATION include/command_line)
+endif()
