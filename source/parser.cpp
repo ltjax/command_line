@@ -73,6 +73,15 @@ void parser::run(int argn, char *argv[])
         throw std::runtime_error("One or more required options were not set");
     }
 }
+option_handle parser::recognize(option_handle current)
+{
+    if (current && !current->recognize())
+    {
+        current.reset();
+    }
+
+    return current;
+}
 
 option_handle parser::process(option_handle current, std::string const& parameter, std::unordered_set<option_handle>& required)
 {
@@ -83,11 +92,11 @@ option_handle parser::process(option_handle current, std::string const& paramete
 
         if (parameter[1]=='-')
         {
-            current=find_long(parameter.substr(2));
+            current=recognize(find_long(parameter.substr(2)));
         }
         else
         {
-            current=find_short(parameter[1]);
+            current=recognize(find_short(parameter[1]));
 
             // no space between option and value, apply directly
             if (parameter.size()>2)

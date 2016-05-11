@@ -14,6 +14,7 @@ class abstract_option
 public:
     virtual ~abstract_option();
     virtual void apply(std::string const& rhs)=0;
+    virtual bool recognize()=0;
 };
 
 using option_handle=std::shared_ptr<abstract_option>;
@@ -29,6 +30,11 @@ public:
         std::istringstream stream(rhs);
         stream>>value;
         m_values.push_back(std::move(value));
+    }
+
+    bool recognize()
+    {
+        return true;
     }
 
     bool defined() const
@@ -52,6 +58,30 @@ public:
     }
 private:
     std::vector<T> m_values;
+};
+
+template <>
+class option<void>
+    : public abstract_option
+{
+    void apply(std::string const& /*rhs*/)
+    {
+    }
+
+    bool recognize()
+    {
+        ++m_count;
+        return false;
+    }
+
+    std::size_t count() const
+    {
+        return m_count;
+    }
+
+private:
+    std::size_t m_count=0;
+
 };
 
 class parser
@@ -104,6 +134,8 @@ private:
                          std::unordered_set<option_handle>& required);
 
     std::unordered_set<option_handle> required_options() const;
+
+    option_handle recognize(option_handle current);
 
     struct option_description
     {
