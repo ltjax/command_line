@@ -24,6 +24,14 @@ class option
     : public abstract_option
 {
 public:
+    option() = default;
+
+    template <typename P>
+    option(P&& default_value)
+    : m_default(new T(std::forward<P>(default_value)))
+    {
+    }
+
     void apply(std::string const& rhs)
     {
         T value;
@@ -39,7 +47,7 @@ public:
 
     bool defined() const
     {
-        return !m_values.empty();
+        return !m_values.empty() || m_default;
     }
 
     std::size_t count() const
@@ -49,7 +57,10 @@ public:
 
     T const& get(std::size_t i=0) const
     {
-        return m_values.at(i);
+        if (!m_default)
+            return m_values.at(i);
+
+        return (i<m_values.size()) ? m_values[i] : *m_default;
     }
 
     std::vector<T> const& range() const
@@ -58,6 +69,7 @@ public:
     }
 private:
     std::vector<T> m_values;
+    std::unique_ptr<T> m_default;
 };
 
 template <>
@@ -97,15 +109,25 @@ public:
     template <typename T>
     std::shared_ptr<option<T> const> mandatory(char short_name, std::string long_name, std::string description)
     {
-        return create_option<T>(requirement::mandatory, short_name, long_name, description);
+        return add_option<T>(std::make_shared<option<T>>(), requirement::mandatory, short_name, long_name, description);
     }
 
-    /** Add an optional parameter.
+    /** Add an optional parameter with a default.
+    */
+    template <typename T, typename P>
+    std::shared_ptr<option<T> const> optional(char short_name, std::string long_name, std::string description, P&& default_value)
+    {
+        std::istringstream str;
+        str<<"[default="<<default_value<<"]";
+        return add_option<T>(std::make_shared<option<T>>(std::forward<P>(default_value)), requirement::optional, short_name, long_name, description+str.str());
+    }
+
+    /** Add an optional parameter with a default.
     */
     template <typename T>
     std::shared_ptr<option<T> const> optional(char short_name, std::string long_name, std::string description)
     {
-        return create_option<T>(requirement::optional, short_name, long_name, description);
+        return add_option<T>(std::make_shared<option<T>>(), requirement::optional, short_name, long_name, description);
     }
 
     void run(int argn, char* argv[]);
@@ -120,11 +142,10 @@ private:
     };
 
     template <typename T>
-    std::shared_ptr<option<T> const> create_option(requirement option_type, char short_name, std::string long_name, std::string description)
+    std::shared_ptr<option<T> const> add_option(option<T> which, requirement option_type, char short_name, std::string long_name, std::string description)
     {
-        auto result=std::make_shared<option<T>>();
-        register_option(result, option_type, short_name, long_name, description);
-        return result;
+        register_option(which, option_type, short_name, long_name, description);
+        return which;
     }
 
     void register_option(option_handle option, requirement option_type,
