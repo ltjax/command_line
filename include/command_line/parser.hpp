@@ -76,6 +76,7 @@ template <>
 class option<void>
     : public abstract_option
 {
+public:
     void apply(std::string const& /*rhs*/)
     {
     }
