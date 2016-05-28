@@ -9,6 +9,28 @@
 namespace command_line
 {
 
+
+template <typename T>
+struct converter
+{
+    T operator()(std::string const& rhs) const
+    {
+        T value;
+        std::istringstream stream(rhs);
+        stream>>value;
+        return value;
+    }
+};
+
+template <>
+struct converter<std::string>
+{
+    std::string operator()(std::string const& rhs) const
+    {
+        return rhs;
+    }
+};
+
 class abstract_option
 {
 public:
@@ -34,10 +56,7 @@ public:
 
     void apply(std::string const& rhs)
     {
-        T value;
-        std::istringstream stream(rhs);
-        stream>>value;
-        m_values.push_back(std::move(value));
+        m_values.push_back(std::move(converter<T>()(rhs)));
     }
 
     bool recognize()
