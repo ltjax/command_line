@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <stdexcept>
 
 namespace command_line
 {
@@ -29,6 +30,12 @@ struct converter<std::string>
     {
         return rhs;
     }
+};
+
+class malformed : public std::runtime_error
+{
+public:
+    malformed(std::string const& name) : std::runtime_error("Unrecognized option: " + name) {}
 };
 
 class abstract_option
@@ -151,6 +158,7 @@ public:
     }
 
     void run(int argn, char* argv[]);
+    void run(std::vector<std::string> parameters);
 
     void print_help(std::ostream& out) const;
 

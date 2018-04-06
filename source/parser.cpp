@@ -7,10 +7,12 @@ namespace {
 
 std::string spaces(std::size_t n)
 {
-    std::string result;
-    for (std::size_t i=0; i<n; ++i)
-        result += ' ';
-    return result;
+    return std::string(n, ' ');
+}
+
+void throw_takes_no_value(std::string const& name)
+{
+    throw malformed("Option \"--" + name + "\" does not take a value.");
 }
 
 }
@@ -54,24 +56,35 @@ std::unordered_set<option_handle> parser::required_options() const
     return result;
 }
 
-void parser::run(int argn, char *argv[])
+void parser::run(std::vector<std::string> parameters)
 {
     std::shared_ptr<abstract_option> current;
     auto required = required_options();
 
-    for(int parameter_index=1; parameter_index < argn; ++parameter_index)
+    for (auto const& parameter : parameters)
     {
-        std::string parameter = argv[parameter_index];
         if (parameter.empty())
             continue;
 
-        current=process(current, parameter, required);
+        current = process(current, parameter, required);
     }
 
     if (!required.empty())
     {
         throw std::runtime_error("One or more required options were not set");
     }
+}
+
+void parser::run(int argn, char *argv[])
+{
+    std::vector<std::string> parameters;
+
+    for(int parameter_index=1; parameter_index < argn; ++parameter_index)
+    {
+        parameters.push_back(argv[parameter_index]);
+    }
+
+    run(std::move(parameters));
 }
 option_handle parser::recognize(option_handle current)
 {
@@ -88,11 +101,32 @@ option_handle parser::process(option_handle current, std::string const& paramete
     if (parameter.front()=='-')
     {
         if (parameter.size()<2)
-            throw std::runtime_error("Parameter introducer, but no parameter given");
+            throw std::runtime_error("Option introducer, but no name given");
 
         if (parameter[1]=='-')
         {
-            current=recognize(find_long(parameter.substr(2)));
+            auto content = parameter.substr(2);
+            auto position = content.find("=");
+            if (position != std::string::npos)
+            {
+                // name and value separated by equals
+                auto name = content.substr(0, position);
+                auto value = content.substr(position + 1);
+                current = recognize(find_long(name));
+                if (current == nullptr)
+                {
+                    throw_takes_no_value(name);
+                }
+                current->apply(value);
+                required.erase(current);
+                current = nullptr;
+            }
+            else
+            {
+                // name and value separated by space
+                current = recognize(find_long(content));
+            }
+
         }
         else
         {
@@ -101,6 +135,10 @@ option_handle parser::process(option_handle current, std::string const& paramete
             // no space between option and value, apply directly
             if (parameter.size()>2)
             {
+                if (current == nullptr)
+                {
+                    throw_takes_no_value({ parameter[1] });
+                }
                 current->apply(parameter.substr(2));
                 required.erase(current);
                 current=nullptr;
@@ -114,7 +152,7 @@ option_handle parser::process(option_handle current, std::string const& paramete
     }
     else
     {
-        throw std::runtime_error("Unrecognized parameter: "+parameter);
+        throw malformed("Unrecognized option: " + parameter);
     }
 
     return current;
@@ -134,7 +172,7 @@ option_handle parser::find_short(char short_name)
     return m_short_name_lookup.at(short_name);
 }
 
-option_handle parser::find_long(const std::string &long_name)
+option_handle parser::find_long(std::string const& long_name)
 {
     return m_long_name_lookup.at(long_name);
 }
