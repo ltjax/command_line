@@ -32,10 +32,22 @@ struct converter<std::string>
     }
 };
 
-class malformed : public std::runtime_error
+class exception : public std::runtime_error
 {
 public:
-    malformed(std::string const& name) : std::runtime_error("Unrecognized option: " + name) {}
+    using std::runtime_error::runtime_error;
+};
+
+class malformed : public exception
+{
+public:
+    using exception::exception;
+};
+
+class missing_required : public exception
+{
+public:
+    using exception::exception;
 };
 
 class abstract_option

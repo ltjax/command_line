@@ -21,3 +21,23 @@ TEST_CASE("Can parse an optional string parameter")
 
     REQUIRE(param->get() == "actual");
 }
+
+TEST_CASE("Unknown long option is malformed")
+{
+    command_line::parser parser;
+    REQUIRE_THROWS_AS(parser.run({ "--unknown", "value" }), command_line::malformed);
+}
+
+TEST_CASE("Unknown short option is malformed")
+{
+    command_line::parser parser;
+    REQUIRE_THROWS_AS(parser.run({ "-uvalue" }), command_line::malformed);
+}
+
+TEST_CASE("Missing required value throws")
+{
+    command_line::parser parser;
+    auto param = parser.mandatory<std::string>('r', "required", "required description");
+    REQUIRE_THROWS_AS(parser.run({}), command_line::missing_required);
+}
+

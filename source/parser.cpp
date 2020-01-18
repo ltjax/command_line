@@ -71,7 +71,7 @@ void parser::run(std::vector<std::string> parameters)
 
     if (!required.empty())
     {
-        throw std::runtime_error("One or more required options were not set");
+        throw missing_required("One or more required options were not set");
     }
 }
 
@@ -86,6 +86,7 @@ void parser::run(int argn, char *argv[])
 
     run(std::move(parameters));
 }
+
 option_handle parser::recognize(option_handle current)
 {
     if (current && !current->recognize())
@@ -101,7 +102,7 @@ option_handle parser::process(option_handle current, std::string const& paramete
     if (parameter.front()=='-')
     {
         if (parameter.size()<2)
-            throw std::runtime_error("Option introducer, but no name given");
+            throw malformed("Option introducer, but no name given");
 
         if (parameter[1]=='-')
         {
@@ -169,11 +170,13 @@ void parser::register_option(option_handle option,
 
 option_handle parser::find_short(char short_name)
 {
-    return m_short_name_lookup.at(short_name);
+    auto found = m_short_name_lookup.find(short_name);
+    return found != m_short_name_lookup.end() ? found->second : nullptr;
 }
 
 option_handle parser::find_long(std::string const& long_name)
 {
-    return m_long_name_lookup.at(long_name);
+    auto found = m_long_name_lookup.find(long_name);
+    return found != m_long_name_lookup.end() ? found->second : nullptr;
 }
 
