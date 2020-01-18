@@ -14,12 +14,14 @@ class CommandLineConan(ConanFile):
     options = {"shared": [True, False]}
     default_options = {"shared": False}
     generators = "cmake"
-    exports_sources = "source/*", "include/*", "CMakeLists.txt"
+    exports_sources = "source/*", "include/*", "CMakeLists.txt", "test/*"
     build_requires = "Catch2/2.7.2@catchorg/stable",
     
     def _configured_cmake(self):
         cmake = CMake(self)
-        cmake.configure(source_folder=".", defs={})
+        cmake.configure(source_folder=".", defs={
+            'command_line_ENABLE_INSTALL': 'ON'
+        })
         return cmake
 
     def configure(self):
