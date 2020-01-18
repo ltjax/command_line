@@ -78,7 +78,7 @@ public:
 
     template <typename P>
     explicit option(P&& default_value)
-    : m_default(new T(std::forward<P>(default_value)))
+    : m_default({std::forward<P>(default_value)})
     {
     }
 
@@ -104,19 +104,21 @@ public:
 
     T const& get(std::size_t i=0) const
     {
-        if (!m_default)
+        if (m_default.empty())
             return m_values.at(i);
 
-        return (i<m_values.size()) ? m_values[i] : *m_default;
+        return (i<m_values.size()) ? m_values[i] : m_default.front();
     }
 
     std::vector<T> const& range() const
     {
+        if (m_values.empty())
+          return m_default;
         return m_values;
     }
 private:
     std::vector<T> m_values;
-    std::unique_ptr<T> m_default;
+    std::vector<T> m_default; // Only every carries 0 or 1 elements
 };
 
 template <>

@@ -60,3 +60,18 @@ TEST_CASE("Integer parameter")
     }
 }
 
+
+TEST_CASE("Retrieve default value")
+{
+    command_line::parser parser;
+    auto param = parser.optional<std::string>('a', "args", "description", "this_is_the_default");
+    parser.run({});
+    SECTION("using get()")
+    {
+      REQUIRE(param->get() == "this_is_the_default");
+    }
+    SECTION("using range()")
+    {
+      REQUIRE(param->range() == std::vector<std::string>{"this_is_the_default"});
+    }
+}
