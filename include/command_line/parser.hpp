@@ -145,7 +145,7 @@ public:
     std::shared_ptr<option<T> const> optional(char short_name, std::string long_name, std::string description, P&& default_value)
     {
         std::ostringstream str;
-        str<<"[default="<<default_value<<"]";
+        str<<" (default="<<default_value<<")";
         return add_option<T>(std::make_shared<option<T>>(std::forward<P>(default_value)), requirement::optional, short_name, long_name, description+str.str());
     }
 
