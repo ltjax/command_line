@@ -149,7 +149,7 @@ public:
         return add_option<T>(std::make_shared<option<T>>(std::forward<P>(default_value)), requirement::optional, short_name, long_name, description+str.str());
     }
 
-    /** Add an optional parameter with a default.
+    /** Add an optional parameter without a default.
     */
     template <typename T>
     std::shared_ptr<option<T> const> optional(char short_name, std::string long_name, std::string description)
