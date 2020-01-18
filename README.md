@@ -1,5 +1,5 @@
 # command_line
-A portable command line parser for C++11
+A portable command line parser for C++17
 
 This is a small command line parser with the following goals:
 * Do not duplicate the option name
