@@ -11,6 +11,24 @@ namespace command_line
 {
 
 
+class exception : public std::runtime_error
+{
+public:
+    using std::runtime_error::runtime_error;
+};
+
+class malformed : public exception
+{
+public:
+    using exception::exception;
+};
+
+class missing_required : public exception
+{
+public:
+    using exception::exception;
+};
+
 template <typename T>
 struct converter
 {
@@ -34,24 +52,6 @@ struct converter<std::string>
     {
         return rhs;
     }
-};
-
-class exception : public std::runtime_error
-{
-public:
-    using std::runtime_error::runtime_error;
-};
-
-class malformed : public exception
-{
-public:
-    using exception::exception;
-};
-
-class missing_required : public exception
-{
-public:
-    using exception::exception;
 };
 
 class abstract_option
