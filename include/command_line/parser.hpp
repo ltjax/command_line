@@ -19,6 +19,10 @@ struct converter
         T value;
         std::istringstream stream(rhs);
         stream>>value;
+        if (stream.fail())
+        {
+            throw malformed("Value " + rhs + " cannot be converted to " + typeid(T).name());
+        }
         return value;
     }
 };

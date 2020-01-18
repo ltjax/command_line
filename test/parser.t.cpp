@@ -14,9 +14,13 @@ TEST_CASE("Can parse an optional string parameter")
     {
         parser.run({ "-s", "actual" });
     }
-    SECTION("long form")
+    SECTION("long form, separated")
     {
         parser.run({ "--thestring", "actual" });
+    }
+    SECTION("long form, joined")
+    {
+        parser.run({ "--thestring=actual" });
     }
 
     REQUIRE(param->get() == "actual");
@@ -39,5 +43,20 @@ TEST_CASE("Missing required value throws")
     command_line::parser parser;
     auto param = parser.mandatory<std::string>('r', "required", "required description");
     REQUIRE_THROWS_AS(parser.run({}), command_line::missing_required);
+}
+
+TEST_CASE("Integer parameter")
+{
+    command_line::parser parser;
+    auto param = parser.optional<std::uint32_t>('i', "number", "number description");
+    SECTION("can be parsed")
+    {
+        parser.run({ "--number", "123456" });
+        REQUIRE(param->get() == 123456);
+    }
+    SECTION("throws on invalid")
+    {
+        REQUIRE_THROWS_AS(parser.run({ "--number=thisisnotanumber" }), command_line::malformed);
+    }
 }
 
