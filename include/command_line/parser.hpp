@@ -29,6 +29,12 @@ public:
     using exception::exception;
 };
 
+class option_index_out_of_bounds : public exception
+{
+public:
+    using exception::exception;
+};
+
 template <typename T>
 struct converter
 {
@@ -105,7 +111,14 @@ public:
     T const& get(std::size_t i=0) const
     {
         if (m_default.empty())
-            return m_values.at(i);
+        {
+            if (i >= m_values.size())
+            {
+                throw option_index_out_of_bounds("Out of bounds index " + std::to_string(i) + " to option with "
+                    + std::to_string(m_values.size()) + " values.");
+            }
+            return m_values[i];
+        }
 
         return (i<m_values.size()) ? m_values[i] : m_default.front();
     }

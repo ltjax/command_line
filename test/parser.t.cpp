@@ -58,8 +58,12 @@ TEST_CASE("Integer parameter")
     {
         REQUIRE_THROWS_AS(parser.run({ "--number=thisisnotanumber" }), command_line::malformed);
     }
+    SECTION("access to non-existant throws")
+    {
+        parser.run({});
+        REQUIRE_THROWS_AS(param->get(), command_line::option_index_out_of_bounds);
+    }
 }
-
 
 TEST_CASE("Retrieve default value")
 {
