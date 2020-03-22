@@ -58,5 +58,24 @@ TEST_CASE("Integer parameter")
     {
         REQUIRE_THROWS_AS(parser.run({ "--number=thisisnotanumber" }), command_line::malformed);
     }
+    SECTION("access to non-existant throws")
+    {
+        parser.run({});
+        REQUIRE_THROWS_AS(param->get(), command_line::option_index_out_of_bounds);
+    }
 }
 
+TEST_CASE("Retrieve default value")
+{
+    command_line::parser parser;
+    auto param = parser.optional<std::string>('a', "args", "description", "this_is_the_default");
+    parser.run({});
+    SECTION("using get()")
+    {
+      REQUIRE(param->get() == "this_is_the_default");
+    }
+    SECTION("using range()")
+    {
+      REQUIRE(param->range() == std::vector<std::string>{"this_is_the_default"});
+    }
+}
