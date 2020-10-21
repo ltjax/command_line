@@ -28,7 +28,14 @@ void parser::print_help(std::ostream& out) const
     {
         auto padding = longest_long_name_length-each.long_name.length();
 
-        out << '-' << each.short_name << ", --" << each.long_name << spaces(padding);
+        if (each.short_name != INVALID_SHORT_NAME)
+        {
+          out << '-' << each.short_name << ", --" << each.long_name << spaces(padding);
+        }
+        else
+        {
+          out << "    --" << each.long_name << spaces(padding);
+        }
         out << " : " << each.description;
 
         if (each.option_type == requirement::mandatory)
@@ -56,7 +63,7 @@ std::unordered_set<option_handle> parser::required_options() const
     return result;
 }
 
-void parser::run(std::vector<std::string> parameters)
+void parser::run(std::vector<std::string> const& parameters)
 {
     std::shared_ptr<abstract_option> current;
     auto required = required_options();
@@ -81,10 +88,10 @@ void parser::run(int argn, char *argv[])
 
     for(int parameter_index=1; parameter_index < argn; ++parameter_index)
     {
-        parameters.push_back(argv[parameter_index]);
+        parameters.emplace_back(argv[parameter_index]);
     }
 
-    run(std::move(parameters));
+    run(parameters);
 }
 
 option_handle parser::recognize(option_handle current)
@@ -107,7 +114,7 @@ option_handle parser::process(option_handle current, std::string const& paramete
         if (parameter[1]=='-')
         {
             auto content = parameter.substr(2);
-            auto position = content.find("=");
+            auto position = content.find('=');
             if (position != std::string::npos)
             {
                 // name and value separated by equals
@@ -163,7 +170,11 @@ void parser::register_option(option_handle option,
                              requirement option_type,
                              char short_name, std::string long_name, std::string description)
 {
-    m_short_name_lookup[short_name] = option;
+    if (short_name != INVALID_SHORT_NAME)
+    {
+      m_short_name_lookup[short_name] = option;
+    }
+
     m_long_name_lookup[long_name] = option;
     m_description_list.push_back({option_type, short_name, std::move(long_name), std::move(description), std::move(option)});
 }

@@ -72,10 +72,18 @@ TEST_CASE("Retrieve default value")
     parser.run({});
     SECTION("using get()")
     {
-      REQUIRE(param->get() == "this_is_the_default");
+        REQUIRE(param->get() == "this_is_the_default");
     }
     SECTION("using range()")
     {
-      REQUIRE(param->range() == std::vector<std::string>{"this_is_the_default"});
+        REQUIRE(param->range() == std::vector<std::string>{"this_is_the_default"});
     }
+}
+
+TEST_CASE("Use only long names")
+{
+    command_line::parser parser;
+    auto param = parser.optional<std::string>("long_name", "description", "this_is_the_default");
+    parser.run({"--long_name=this_is_the_value"});
+    REQUIRE(param->get() == "this_is_the_value");
 }

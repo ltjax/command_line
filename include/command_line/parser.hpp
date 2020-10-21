@@ -162,6 +162,7 @@ private:
 class parser
 {
 public:
+    static constexpr char INVALID_SHORT_NAME = '\0';
 
     parser();
     ~parser();
@@ -190,6 +191,14 @@ public:
                 std::move(long_name), std::move(description));
     }
 
+    /** Add an optional parameter with only a long name and with a default.
+    */
+    template <typename T, typename P>
+    std::shared_ptr<option<T> const> optional(std::string long_name, std::string description, P&& default_value)
+    {
+      return optional<T>(INVALID_SHORT_NAME, std::move(long_name), std::move(description), std::forward<P>(default_value));
+    }
+
     /** Add an optional parameter without a default.
     */
     template <typename T>
@@ -198,8 +207,16 @@ public:
         return add_option<T>(std::make_shared<option<T>>(), requirement::optional, short_name, long_name, description);
     }
 
+    /** Add an optional parameter with only a long name but without a default.
+    */
+    template <typename T>
+    std::shared_ptr<option<T> const> optional(std::string long_name, std::string description)
+    {
+      return optional<T>(INVALID_SHORT_NAME, std::move(long_name), std::move(description));
+    }
+
     void run(int argn, char* argv[]);
-    void run(std::vector<std::string> parameters);
+    void run(std::vector<std::string> const& parameters);
 
     void print_help(std::ostream& out) const;
 
