@@ -75,6 +75,8 @@ class option
     : public abstract_option
 {
 public:
+    using get_type = std::conditional_t<std::is_same_v<T, bool>, bool, T const&>;
+
     option() = default;
 
     option(option const&) = delete;
@@ -108,7 +110,7 @@ public:
         return m_values.size();
     }
 
-    T const& get(std::size_t i=0) const
+    get_type get(std::size_t i=0) const
     {
         if (m_default.empty())
         {
@@ -119,7 +121,6 @@ public:
             }
             return m_values[i];
         }
-
         return (i<m_values.size()) ? m_values[i] : m_default.front();
     }
 

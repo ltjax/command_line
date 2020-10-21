@@ -87,3 +87,15 @@ TEST_CASE("Use only long names")
     parser.run({"--long_name=this_is_the_value"});
     REQUIRE(param->get() == "this_is_the_value");
 }
+
+TEST_CASE("Boolean parameter")
+{
+    command_line::parser parser;
+    auto toggle = parser.optional<bool>("some_boolean", "description", false);
+
+    SECTION("Default can be read")
+    {
+        parser.run({});
+        REQUIRE(toggle->get() == false);
+    }
+}
