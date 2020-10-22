@@ -98,4 +98,21 @@ TEST_CASE("Boolean parameter")
         parser.run({});
         REQUIRE(toggle->get() == false);
     }
+    SECTION("Can be set false via command line")
+    {
+        parser.run({"--some_boolean=false"});
+        REQUIRE(toggle->get() == false);
+    }
+    SECTION("Can be set true via command line")
+    {
+        parser.run({"--some_boolean=true"});
+        REQUIRE(toggle->get() == true);
+    }
+    SECTION("Prints help as false, not 0")
+    {
+        using Catch::Matchers::Contains;
+        std::ostringstream str;
+        parser.print_help(str);
+        REQUIRE_THAT(str.str(), Contains("default=false"));
+    }
 }

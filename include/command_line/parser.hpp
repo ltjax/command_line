@@ -60,6 +60,43 @@ struct converter<std::string>
     }
 };
 
+template <>
+struct converter<bool>
+{
+    bool operator()(std::string rhs) const
+    {
+        for (auto& x : rhs)
+            x = static_cast<char>(std::tolower(x));
+
+        if (rhs == "false" || rhs == "off" || rhs == "no" || rhs == "0")
+            return false;
+        if (rhs == "true" || rhs == "on" || rhs == "yes" || rhs == "1")
+            return true;
+
+        throw malformed("Value " + rhs + " cannot be converted to bool");
+    }
+};
+
+template <typename T>
+struct printer
+{
+    std::string operator()(T const& rhs) const
+    {
+        std::ostringstream str;
+        str << rhs;
+        return str.str();
+    }
+};
+
+template <>
+struct printer<bool>
+{
+    std::string operator()(bool rhs) const
+    {
+        return rhs ? "true" : "false";
+    }
+};
+
 class abstract_option
 {
 public:
@@ -184,9 +221,7 @@ public:
     std::shared_ptr<option<T> const> optional(char short_name, std::string long_name, std::string description, P&& default_value)
     {
         // Append information about the defaults
-        std::ostringstream str;
-        str<<" (default="<<default_value<<")";
-        description += str.str();
+        description += " (default=" + printer<T>()(default_value) + ')';
 
         return add_option<T>(std::make_shared<option<T>>(std::forward<P>(default_value)), requirement::optional, short_name,
                 std::move(long_name), std::move(description));
