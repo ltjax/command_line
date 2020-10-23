@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <vector>
 #include <stdexcept>
+#include <cctype>
 
 namespace command_line
 {
