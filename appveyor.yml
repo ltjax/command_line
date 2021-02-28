@@ -6,7 +6,6 @@ environment:
     CONAN_USERNAME: "ltjax"
     CONAN_LOGIN_USERNAME: "ltjax"
     CONAN_CHANNEL: "testing"
-    CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
     CONAN_UPLOAD: "https://api.bintray.com/conan/ltjax/conan"
     
     matrix:

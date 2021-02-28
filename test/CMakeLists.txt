@@ -6,4 +6,4 @@ add_executable(${TARGET_NAME}
 
 target_link_libraries(${TARGET_NAME}
   PUBLIC command_line
-  PUBLIC CONAN_PKG::Catch2)
+  PUBLIC CONAN_PKG::catch2)
