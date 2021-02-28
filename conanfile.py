@@ -15,7 +15,7 @@ class CommandLineConan(ConanFile):
     default_options = {"shared": False}
     generators = "cmake"
     exports_sources = "source/*", "include/*", "CMakeLists.txt", "test/*"
-    build_requires = "Catch2/2.7.2@catchorg/stable",
+    build_requires = "catch2/2.13.4",
     
     def _configured_cmake(self):
         cmake = CMake(self)
