@@ -140,7 +140,7 @@ public:
 
     [[nodiscard]] bool defined() const
     {
-        return !m_values.empty() || m_default;
+        return !m_values.empty() || !m_default.empty();
     }
 
     [[nodiscard]] std::size_t count() const

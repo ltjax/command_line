@@ -88,6 +88,14 @@ TEST_CASE("Use only long names")
     REQUIRE(param->get() == "this_is_the_value");
 }
 
+TEST_CASE("Optional without default is not defined")
+{
+    command_line::parser parser;
+    auto param = parser.optional<std::string>("long_name", "description");
+    parser.run({});
+    REQUIRE_FALSE(param->defined());
+}
+
 TEST_CASE("Boolean parameter")
 {
     command_line::parser parser;

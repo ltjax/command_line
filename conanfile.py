@@ -4,7 +4,7 @@ from conans.errors import ConanInvalidConfiguration
 
 class CommandLineConan(ConanFile):
     name = "command_line"
-    version = "0.2"
+    version = "0.3"
     license = "MIT"
     author = "Marius Elvert marius.elvert@googlemail.com"
     url = "https://github.com/ltjax/command_line"
